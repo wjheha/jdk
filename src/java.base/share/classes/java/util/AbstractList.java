@@ -495,6 +495,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     public List<E> subList(int fromIndex, int toIndex) {
         subListRangeCheck(fromIndex, toIndex, size());
+        // 根据判断 RandomAccess 接口，判断是否支持随机访问
         return (this instanceof RandomAccess ?
                 new RandomAccessSubList<>(this, fromIndex, toIndex) :
                 new SubList<>(this, fromIndex, toIndex));
@@ -535,19 +536,23 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      * @return {@code true} if the specified object is equal to this list
      */
     public boolean equals(Object o) {
+        // 如果 o 就是自己，直接返回 true
         if (o == this)
             return true;
+        // 如果不为 List 类型，直接返回 false
         if (!(o instanceof List))
             return false;
 
+        // 创建迭代器，顺序遍历比对
         ListIterator<E> e1 = listIterator();
         ListIterator<?> e2 = ((List<?>) o).listIterator();
         while (e1.hasNext() && e2.hasNext()) {
             E o1 = e1.next();
             Object o2 = e2.next();
-            if (!(o1==null ? o2==null : o1.equals(o2)))
+            if (!(o1==null ? o2==null : o1.equals(o2)))  // 如果不相等，返回 false
                 return false;
         }
+        // 如果有迭代器没有遍历完，说明两者长度不等，所以就不相等；否则，就相等了
         return !(e1.hasNext() || e2.hasNext());
     }
 
