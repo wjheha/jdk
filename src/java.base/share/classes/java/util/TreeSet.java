@@ -93,6 +93,10 @@ public class TreeSet<E> extends AbstractSet<E>
     implements NavigableSet<E>, Cloneable, java.io.Serializable
 {
     /**
+     * m 的 key ，存储 HashSet 的每个 key 。
+     * map 的 value ，因为 TreeSet 没有 value 的需要，所以使用一个统一的 PRESENT 即可
+     */
+    /**
      * The backing map.
      */
     private transient NavigableMap<E,Object> m;
@@ -157,6 +161,7 @@ public class TreeSet<E> extends AbstractSet<E>
      */
     public TreeSet(Collection<? extends E> c) {
         this();
+        // 批量添加
         addAll(c);
     }
 
@@ -169,6 +174,7 @@ public class TreeSet<E> extends AbstractSet<E>
      */
     public TreeSet(SortedSet<E> s) {
         this(s.comparator());
+        // 批量添加
         addAll(s);
     }
 
@@ -177,7 +183,7 @@ public class TreeSet<E> extends AbstractSet<E>
      *
      * @return an iterator over the elements in this set in ascending order
      */
-    public Iterator<E> iterator() {
+    public Iterator<E> iterator() {   // 正序 Iterator 迭代器
         return m.navigableKeySet().iterator();
     }
 
@@ -187,7 +193,7 @@ public class TreeSet<E> extends AbstractSet<E>
      * @return an iterator over the elements in this set in descending order
      * @since 1.6
      */
-    public Iterator<E> descendingIterator() {
+    public Iterator<E> descendingIterator() {   // 倒序 Iterator 迭代器
         return m.descendingKeySet().iterator();
     }
 
@@ -297,6 +303,7 @@ public class TreeSet<E> extends AbstractSet<E>
      */
     public  boolean addAll(Collection<? extends E> c) {
         // Use linear-time version if applicable
+        // 情况一
         if (m.size()==0 && c.size() > 0 &&
             c instanceof SortedSet &&
             m instanceof TreeMap) {
@@ -307,6 +314,7 @@ public class TreeSet<E> extends AbstractSet<E>
                 return true;
             }
         }
+        // 情况二
         return super.addAll(c);
     }
 
@@ -469,6 +477,7 @@ public class TreeSet<E> extends AbstractSet<E>
      */
     @SuppressWarnings("unchecked")
     public Object clone() {
+        // 克隆创建 TreeSet 对象
         TreeSet<E> clone;
         try {
             clone = (TreeSet<E>) super.clone();
@@ -476,6 +485,7 @@ public class TreeSet<E> extends AbstractSet<E>
             throw new InternalError(e);
         }
 
+        // 创建 TreeMap 对象，赋值给 clone 的 m 属性
         clone.m = new TreeMap<>(m);
         return clone;
     }
@@ -496,15 +506,19 @@ public class TreeSet<E> extends AbstractSet<E>
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
         // Write out any hidden stuff
+        // 写入非静态属性、非 transient 属性
         s.defaultWriteObject();
 
         // Write out Comparator
+        // 写入比较器
         s.writeObject(m.comparator());
 
         // Write out size
+        // 写入 key-value 键值对数量
         s.writeInt(m.size());
 
         // Write out all elements in the proper order.
+        // 写入具体的 key-value 键值对
         for (E e : m.keySet())
             s.writeObject(e);
     }
@@ -517,19 +531,24 @@ public class TreeSet<E> extends AbstractSet<E>
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         // Read in any hidden stuff
+        // 读取非静态属性、非 transient 属性
         s.defaultReadObject();
 
         // Read in Comparator
+        // 读取比较器
         @SuppressWarnings("unchecked")
             Comparator<? super E> c = (Comparator<? super E>) s.readObject();
 
         // Create backing TreeMap
+        // 创建 TreeMap 对象
         TreeMap<E,Object> tm = new TreeMap<>(c);
         m = tm;
 
         // Read in size
+        // 读取 key-value 键值对数量
         int size = s.readInt();
 
+        // 读取具体的 key-value 键值对
         tm.readTreeSet(size, s, PRESENT);
     }
 

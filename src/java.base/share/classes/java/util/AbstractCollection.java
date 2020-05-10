@@ -332,6 +332,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
      */
     public boolean addAll(Collection<? extends E> c) {
         boolean modified = false;
+        // 遍历 c 集合，逐个添加
         for (E e : c)
             if (add(e))
                 modified = true;
